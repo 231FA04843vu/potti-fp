@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            width: 80%;
+            max-width: 900px;
+            min-height: 600px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 50px auto;
+        }
+        .admin-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .admin-container input, .admin-container textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .admin-container button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .admin-container .question-list {
+            margin-top: 30px;
+        }
+        .admin-container .question-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Admin Panel</h1>
+        <input type="number" id="total-questions" placeholder="Enter total number of questions">
+        <button onclick="setTotalQuestions()">Set Total Questions</button>
+        <input type="text" id="new-question" placeholder="Enter new question" style="display:none;">
+        <textarea id="new-options" placeholder="Enter options separated by commas" style="display:none;"></textarea>
+        <input type="number" id="correct-option" placeholder="Enter correct option number (0-based)" style="display:none;">
+        <button onclick="addQuestion()" style="display:none;" id="add-question-btn">Add Question</button>
+        <div class="question-list" id="question-list"></div>
+    </div>
+
+    <script>
+        let questions = [];
+        let totalQuestions = 0;
+
+        function setTotalQuestions() {
+            totalQuestions = parseInt(document.getElementById('total-questions').value);
+            if (!isNaN(totalQuestions) && totalQuestions > 0) {
+                document.getElementById('total-questions').style.display = 'none';
+                document.querySelector('button[onclick="setTotalQuestions()"]').style.display = 'none';
+                document.getElementById('new-question').style.display = 'block';
+                document.getElementById('new-options').style.display = 'block';
+                document.getElementById('correct-option').style.display = 'block';
+                document.getElementById('add-question-btn').style.display = 'block';
+            } else {
+                alert('Please enter a valid number of questions.');
+            }
+        }
+
+        function addQuestion() {
+            const questionText = document.getElementById('new-question').value;
+            const optionsText = document.getElementById('new-options').value;
+            const correctOption = parseInt(document.getElementById('correct-option').value);
+
+            if (questionText && optionsText && !isNaN(correctOption)) {
+                const options = optionsText.split(',').map(option => option.trim());
+                const newQuestion = {
+                    question: questionText,
+                    answers: options,
+                    correct: correctOption
+                };
+                questions.push(newQuestion);
+                displayQuestions();
+                clearInputs();
+                if (questions.length === totalQuestions) {
+                    alert('All questions added successfully!');
+                    localStorage.setItem('quizQuestions', JSON.stringify(questions));
+                }
+            } else {
+                alert('Please fill in all fields correctly.');
+            }
+        }
+
+        function displayQuestions() {
+            const questionList = document.getElementById('question-list');
+            questionList.innerHTML = '';
+            questions.forEach((q, index) => {
+                const questionItem = document.createElement('div');
+                questionItem.className = 'question-item';
+                questionItem.innerHTML = `
+                    <h3>Question ${index + 1}</h3>
+                    <p>${q.question}</p>
+                    <p>Options: ${q.answers.join(', ')}</p>
+                    <p>Correct Option: ${q.correct}</p>
+                `;
+                questionList.appendChild(questionItem);
+            });
+        }
+
+        function clearInputs() {
+            document.getElementById('new-question').value = '';
+            document.getElementById('new-options').value = '';
+            document.getElementById('correct-option').value = '';
+        }
+    </script>
+</body>
+</html>
